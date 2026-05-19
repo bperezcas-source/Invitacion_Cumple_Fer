@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>¡Los 30 de Fernando! - Invitación Galáctica</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts para estilo Star Wars / Sci-fi -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Pathway+Gothic+One&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    /* Estilos base y temática espacial */
+    body {
+      background-color: #030303;
+      font-family: 'Orbitron', sans-serif;
+      overflow-x: hidden;
+    }
+    .mono-font {
+      font-family: 'Share Tech Mono', monospace;
+    }
+    .crawl-font {
+      font-family: 'Pathway Gothic One', sans-serif;
+    }
+
+    /* Efecto de estrellas de fondo */
+    #stars {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Animación del texto inicial al estilo Star Wars */
+    .star-wars-intro {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      z-index: 50;
+      background: #000;
+      display: flex; 
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 0.4s ease-out; /* MODIFICADO: Fundido de salida aún más rápido */
+    }
+
+    .fade-text {
+      color: #4bd5ee;
+      font-weight: bold;
+      font-size: 1.5rem;
+      opacity: 0;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .fade-active {
+      animation: fad 2.5s ease-in-out forwards; /* MODIFICADO: Animación reducida a 1.5s */
+    }
+
+    /* El famoso texto inclinado (Crawl) */
+    .crawl-container {
+      position: absolute;
+      width: 60%;
+      max-width: 800px;
+      height: 50em;
+      bottom: 0;
+      font-size: 200%;
+      font-weight: 600;
+      text-align: justify;
+      overflow: hidden;
+      transform: perspective(300px) rotateX(25deg);
+      transform-origin: 50% 100%;
+      mask-image: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.8) 40%, rgba(0,0,0,0) 100%);
+      -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.8) 40%, rgba(0,0,0,0) 100%);
+    }
+
+    .crawl-content {
+      position: absolute;
+      top: 100%;
+      color: #feda4a;
+    }
+
+    .crawl-active {
+      animation: crawl 40s linear forwards; /* MODIFICADO: El texto sube rápido en 10s */
+    }
+
+    @keyframes fade {
+      0% { opacity: 0; }
+      20% { opacity: 1; }
+      80% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    @keyframes crawl {
+      0% { top: 100%; }
+      100% { top: -150%; }
+    }
+
+    /* Clases dinámicas de "Bando" (Jedi vs Sith) */
+    .jedi-glow {
+      box-shadow: 0 0 15px rgba(59, 130, 246, 0.5), inset 0 0 15px rgba(59, 130, 246, 0.2);
+      border-color: rgba(59, 130, 246, 0.6);
+    }
+    .jedi-text-glow {
+      text-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
+    }
+    .jedi-bg {
+      background: radial-gradient(circle at center, rgba(30, 58, 138, 0.2) 0%, rgba(0,0,0,0) 70%);
+    }
+
+    .sith-glow {
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.5), inset 0 0 15px rgba(239, 68, 68, 0.2);
+      border-color: rgba(239, 68, 68, 0.6);
+    }
+    .sith-text-glow {
+      text-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
+    }
+    .sith-bg {
+      background: radial-gradient(circle at center, rgba(153, 27, 27, 0.2) 0%, rgba(0,0,0,0) 70%);
+    }
+
+    .normal-glow {
+      box-shadow: 0 0 15px rgba(254, 218, 74, 0.4);
+      border-color: rgba(254, 218, 74, 0.5);
+    }
+  </style>
+</head>
+<body class="text-white relative min-h-screen">
+
+  <!-- Elemento de Audio para la Música de Intro -->
+  <audio id="intro-music" loop preload="auto">
+    <source src="https://archive.org/download/StarWarsThemeSongByJohnWilliams/Star%20Wars%20Theme%20Song%20By%20John%20Williams.mp3" type="audio/mpeg">
+    Tu navegador no soporta el formato de audio.
+  </audio>
+
+  <!-- Lienzo de Estrellas -->
+  <canvas id="stars"></canvas>
+
+  <!-- INTRO ANIMADA (Star Wars Crawl) -->
+  <div id="intro-screen" class="star-wars-intro overflow-hidden">
+    <!-- Botón para omitir intro -->
+    <button onclick="skipIntro()" class="absolute top-6 right-6 z-[60] px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-black font-bold rounded-full text-xs uppercase tracking-wider transition duration-300 transform hover:scale-105">
+      Omitir Intro ⏩
+    </button>
+
+    <!-- Frase Azul Inicial -->
+    <div id="blue-phrase" class="fade-text max-w-lg">
+      Hace 30 años, en una galaxia muy, muy lejana...
+    </div>
+
+    <!-- Crawl de Texto -->
+    <div id="crawl-container" class="crawl-container hidden">
+      <div id="crawl-content" class="crawl-content crawl-font text-center uppercase tracking-wide">
+        <p class="text-2xl md:text-3xl text-center font-bold mb-6 text-yellow-400">EPISODIO XXX</p>
+        <p class="text-3xl md:text-4xl text-center font-extrabold mb-8 text-yellow-400">EL ASCENSO DE FERNANDO</p>
+        
+        <p class="mb-6 leading-relaxed text-justify px-4">
+          La galaxia entera se reúne para celebrar un acontecimiento sin igual. El joven padawan FERNANDO ha completado su órbita número 30 alrededor del sol.
+        </p>
+        
+        <p class="mb-6 leading-relaxed text-justify px-4">
+          Un nuevo poder despierta. El sábado 15 de agosto, los aliados de todos los sistemas estelares viajarán a las coordenadas indicadas para festejar este legendario ciclo.
+        </p>
+        
+        <p class="mb-6 leading-relaxed text-justify px-4">
+          Prepara tu sable de luz, afina tu conexión con la Fuerza, y únete a la Alianza en un festejo que resonará por la eternidad...
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTROL DE AUDIO FLOTANTE (Mute/Unmute) -->
+  <button id="music-toggle" onclick="toggleMusica()" class="fixed top-6 right-6 z-40 p-3 bg-neutral-900/80 border border-neutral-800 rounded-full text-white hover:bg-neutral-800 hover:border-neutral-600 transition duration-300 shadow-md">
+    <!-- Bocina Activa (Unmuted) -->
+    <svg id="icon-sound-on" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
+    </svg>
+    <!-- Bocina Silenciada (Muted) -->
+    <svg id="icon-sound-off" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15zm10.95-6.05L13.5 12m0 0l3.036 3.036M13.5 12l3.036-3.036M13.5 12L10.464 8.964"></path>
+    </svg>
+  </button>
+
+  <!-- CONTENIDO PRINCIPAL DE LA INVITACIÓN -->
+  <main id="main-content" class="relative z-10 max-w-lg mx-auto px-4 py-8 md:py-12 flex flex-col items-center justify-center min-h-screen">
+    
+    <!-- CABECERA DE LA GALAXIA -->
+    <div class="w-full text-center mb-8 relative">
+      <p class="text-xs uppercase tracking-[0.3em] text-yellow-400 font-bold mb-2">Transmisión Holográfica</p>
+      <h1 class="text-4xl md:text-5xl font-black tracking-wider uppercase mb-2 text-yellow-400" id="invitation-title">
+        FERNANDO
+      </h1>
+      <div class="inline-block px-4 py-1 border border-yellow-400 text-yellow-400 text-sm font-bold tracking-[0.2em] rounded">
+        Misión: Cumpleaños 30
+      </div>
+    </div>
+
+    <!-- SELECTOR DE FUERZA (INTERACTIVO) -->
+    <div class="w-full bg-neutral-900/80 backdrop-blur-md rounded-2xl p-4 border border-neutral-800 text-center mb-6 normal-glow transition-all duration-500" id="force-selector-box">
+      <p class="text-xs uppercase tracking-wider text-neutral-400 mb-3 font-semibold">Elige tu bando para revelar la invitación</p>
+      <div class="grid grid-cols-2 gap-3">
+        <button onclick="setBando('jedi')" id="btn-jedi" class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl border-2 border-blue-500 bg-blue-950/20 text-blue-400 font-bold hover:bg-blue-500 hover:text-white transition duration-300">
+          <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M11,6V9H8V11H11V14H8V16H11V18H13V16H16V14H13V11H16V9H13V6H11Z" /></svg>
+          Lado Luminoso
+        </button>
+        <button onclick="setBando('sith')" id="btn-sith" class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl border-2 border-red-500 bg-red-950/20 text-red-400 font-bold hover:bg-red-500 hover:text-white transition duration-300">
+          <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+          Lado Oscuro
+        </button>
+      </div>
+    </div>
+
+    <!-- TARJETA PRINCIPAL DE DETALLES -->
+    <div id="details-card" class="w-full bg-neutral-950/90 backdrop-blur-md rounded-2xl p-6 border border-neutral-800 transition-all duration-700 relative overflow-hidden mb-6 flex flex-col gap-6">
+      
+      <!-- Efecto de luz dinámico de fondo -->
+      <div id="dynamic-bg-glow" class="absolute inset-0 pointer-events-none transition-all duration-700"></div>
+
+      <!-- Fecha y Hora -->
+      <div class="flex items-start gap-4 z-10">
+        <div class="p-3 bg-neutral-900 rounded-xl border border-neutral-800 flex-shrink-0" id="date-icon-box">
+          <!-- Calendario SVG -->
+          <svg class="w-6 h-6 text-yellow-400 transition-all duration-500" id="date-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-xs uppercase tracking-widest text-neutral-400 mb-1">Rotación Estelar (Fecha)</h3>
+          <p class="text-lg font-bold">Sábado, 15 de Agosto, 2026</p>
+          <p class="text-sm text-yellow-400/80 font-semibold mt-1" id="sub-date">14:00 horas</p>
+        </div>
+      </div>
+
+      <hr class="border-neutral-800" />
+
+      <!-- Ubicación -->
+      <div class="flex items-start gap-4 z-10">
+        <div class="p-3 bg-neutral-900 rounded-xl border border-neutral-800 flex-shrink-0" id="loc-icon-box">
+          <!-- Pin Mapa SVG -->
+          <svg class="w-6 h-6 text-yellow-400 transition-all duration-500" id="loc-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
+        </div>
+        <div class="flex-1">
+          <h3 class="text-xs uppercase tracking-widest text-neutral-400 mb-1">Sector Galáctico (Dirección)</h3>
+          <p class="text-base font-bold leading-snug">Tenosique 371, Héroes de Padierna</p>
+          <p class="text-sm text-neutral-400 mt-0.5">Tlalpan, 14200 Ciudad de México, CDMX</p>
+          
+          <a href="https://maps.google.com/?q=Tenosique+371,+Héroes+de+Padierna,+Tlalpan,+14200+Ciudad+de+México,+CDMX" target="_blank" class="inline-flex items-center gap-2 mt-3 px-4 py-2 rounded-lg bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 hover:border-neutral-500 text-xs font-bold uppercase tracking-wider transition duration-300">
+            <span>Iniciar Navegador de Vuelo 🚀</span>
+          </a>
+        </div>
+      </div>
+
+      <hr class="border-neutral-800" />
+
+      <!-- Transmisión / Mensaje del cumpleañero -->
+      <div class="z-10 bg-neutral-900/50 p-4 rounded-xl border border-neutral-800/80">
+        <h4 class="text-xs uppercase tracking-widest text-yellow-400 mb-2 font-bold">Instrucciones de la Alianza</h4>
+        <p class="text-sm text-neutral-300 leading-relaxed italic">
+          "Prepara tu sable de luz y canaliza la Fuerza. Nos espera un banquete digno de Coruscant, tragos directos de la mismísima cantina de Mos Eisley y el contrabando musical más buscado de la galaxia. Que la Fuerza te acompañe, no faltes... ¡y no olvides tu regalo!"
+        </p>
+      </div>
+    </div>
+
+    <!-- CONTADOR DE TIEMPO REGRESIVO -->
+    <div class="w-full bg-neutral-900/90 border border-neutral-800 rounded-2xl p-6 text-center mb-6 z-10">
+      <h3 class="text-xs uppercase tracking-widest text-neutral-400 mb-4 font-bold">Tiempo restante para el hiperimpulsor</h3>
+      <div class="grid grid-cols-4 gap-2">
+        <div class="bg-black/60 p-2 rounded-xl border border-neutral-800">
+          <div id="countdown-days" class="text-2xl font-black text-white">00</div>
+          <div class="text-[9px] uppercase tracking-wider text-neutral-400 font-bold mt-1">Días</div>
+        </div>
+        <div class="bg-black/60 p-2 rounded-xl border border-neutral-800">
+          <div id="countdown-hours" class="text-2xl font-black text-white">00</div>
+          <div class="text-[9px] uppercase tracking-wider text-neutral-400 font-bold mt-1">Horas</div>
+        </div>
+        <div class="bg-black/60 p-2 rounded-xl border border-neutral-800">
+          <div id="countdown-minutes" class="text-2xl font-black text-white">00</div>
+          <div class="text-[9px] uppercase tracking-wider text-neutral-400 font-bold mt-1">Minutos</div>
+        </div>
+        <div class="bg-black/60 p-2 rounded-xl border border-neutral-800">
+          <div id="countdown-seconds" class="text-2xl font-black text-white">00</div>
+          <div class="text-[9px] uppercase tracking-wider text-neutral-400 font-bold mt-1">Segundos</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTÓN DE CONFIRMACIÓN RSVP (WHATSAPP VINCULADO CON CELULAR VISIBLE) -->
+    <div class="w-full text-center z-10">
+      <button onclick="enviarConfirmacion()" id="btn-rsvp" class="w-full py-3 px-6 bg-yellow-400 hover:bg-yellow-500 text-black font-black uppercase tracking-[0.15em] rounded-xl shadow-lg transition duration-300 transform hover:scale-[1.02] flex items-center justify-center gap-3">
+        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12.01 2.01c-5.52 0-10 4.48-10 10 0 1.76.46 3.42 1.27 4.87L2 22l5.31-1.39c1.4.78 2.99 1.21 4.7 1.21 5.52 0 10-4.48 10-10s-4.48-10-10-10zm.09 1.8c4.54 0 8.2 3.66 8.2 8.2s-3.66 8.2-8.2 8.2c-1.54 0-2.98-.43-4.22-1.18l-.3-.18-3.12.82.83-3.04-.2-.31c-.81-1.29-1.24-2.8-1.24-4.39 0-4.54 3.66-8.2 8.25-8.2z"/></svg>
+        <div class="text-center">
+          <span class="block text-sm md:text-base">Confirmar Asistencia</span>
+          <span class="block text-xs font-semibold tracking-widest normal-case opacity-90 mt-0.5"></span>
+        </div>
+      </button>
+      <p class="text-[10px] text-neutral-400 mt-2 tracking-wide">
+        Serás redirigido a WhatsApp para confirmar tu asistencia a la Alianza.
+      </p>
+    </div>
+
+    <!-- NOTA DE AUTOR GALÁCTICO -->
+    <footer class="mt-12 text-center text-xs text-neutral-600 tracking-widest uppercase">
+      © Año Estelar 2026 — Fernando 30th
+    </footer>
+
+  </main>
+
+  <script>
+    // Configuración de la fecha del evento
+    const targetDate = new Date("Aug 15, 2026 14:00:00").getTime();
+
+    // Variable para el bando seleccionado y reproducción de música
+    let bandoSeleccionado = 'none';
+    const bgMusic = document.getElementById('intro-music');
+    let isMuted = false;
+    let audioCtx = null; // Para sintetizar los sables de luz por Web Audio API
+
+    // 1. GESTIÓN DE AUDIO E INICIO DIRECTO (Se eliminó la pasarela cifrada)
+    window.onload = function() {
+      // Intentar reproducir música inmediatamente
+      playMusicSafe();
+
+      // Listener de un solo clic para activar sonido si el navegador lo bloqueó inicialmente
+      document.body.addEventListener('click', function() {
+        playMusicSafe();
+      }, { once: true });
+
+      // Disparar las animaciones de la intro
+      document.getElementById('blue-phrase').classList.add('fade-active');
+
+      // Secuenciar la frase azul e inicio del Crawl
+      setTimeout(() => {
+        document.getElementById('blue-phrase').style.display = 'none';
+        document.getElementById('crawl-container').classList.remove('hidden');
+        document.getElementById('crawl-content').classList.add('crawl-active');
+
+        // Autocerrar la intro después de terminar de subir el texto
+        setTimeout(() => {
+          skipIntro();
+        }, 10000); // MODIFICADO: Ahora el auto-cierre ocurre a los 10 segundos
+
+      }, 1500); // MODIFICADO: La frase azul desaparece a los 1.5 segundos
+    };
+
+    // Reproducción segura de música respetando políticas del navegador
+    function playMusicSafe() {
+      bgMusic.volume = 0.5;
+      bgMusic.play().then(() => {
+        document.getElementById('icon-sound-on').classList.remove('hidden');
+        document.getElementById('icon-sound-off').classList.add('hidden');
+        isMuted = false;
+      }).catch(error => {
+        console.log("Audio en espera de interacción del usuario para reproducirse.");
+      });
+    }
+
+    // Encendido / Apagado del sonido de forma manual
+    function toggleMusica() {
+      if (bgMusic.paused) {
+        bgMusic.play();
+        document.getElementById('icon-sound-on').classList.remove('hidden');
+        document.getElementById('icon-sound-off').classList.add('hidden');
+        isMuted = false;
+      } else {
+        bgMusic.pause();
+        document.getElementById('icon-sound-on').classList.add('hidden');
+        document.getElementById('icon-sound-off').classList.remove('hidden');
+        isMuted = true;
+      }
+    }
+
+    // SINTETIZADOR WEB AUDIO PARA SABLE DE LUZ (Efecto sonoro al cambiar de bando)
+    function reproducirSonidoSable(tipo) {
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        const ahora = audioCtx.currentTime;
+
+        if (tipo === 'jedi') {
+          // Tono Jedi: Limpio, armónico y ascendente rápido (Azul)
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(90, ahora);
+          osc.frequency.exponentialRampToValueAtTime(240, ahora + 0.15);
+          osc.frequency.exponentialRampToValueAtTime(160, ahora + 0.4);
+
+          gainNode.gain.setValueAtTime(0, ahora);
+          gainNode.gain.linearRampToValueAtTime(0.25, ahora + 0.1);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, ahora + 0.8);
+
+          osc.start(ahora);
+          osc.stop(ahora + 0.8);
+        } else if (tipo === 'sith') {
+          // Tono Sith: Grave, distorsionado y con vibrato inestable (Rojo)
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(55, ahora);
+          osc.frequency.exponentialRampToValueAtTime(130, ahora + 0.2);
+          osc.frequency.exponentialRampToValueAtTime(85, ahora + 0.5);
+
+          // Modulación inestable de baja frecuencia
+          const modulador = audioCtx.createOscillator();
+          const moduladorGain = audioCtx.createGain();
+          modulador.frequency.value = 35; // 35Hz
+          moduladorGain.gain.value = 18;
+          modulador.connect(moduladorGain);
+          moduladorGain.connect(osc.frequency);
+
+          gainNode.gain.setValueAtTime(0, ahora);
+          gainNode.gain.linearRampToValueAtTime(0.35, ahora + 0.15);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, ahora + 1.0);
+
+          modulador.start(ahora);
+          osc.start(ahora);
+          modulador.stop(ahora + 1.0);
+          osc.stop(ahora + 1.0);
+        }
+      } catch (err) {
+        console.warn("La síntesis de audio no es soportada en este navegador.", err);
+      }
+    }
+
+    // 2. ANIMACIÓN DE ESTRELLAS DE FONDO (CANVAS)
+    const canvas = document.getElementById('stars');
+    const ctx = canvas.getContext('2d');
+    let starsArray = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      initStars();
+    }
+
+    class Star {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 1.5;
+        this.opacity = Math.random();
+        this.speed = Math.random() * 0.015;
+      }
+
+      draw() {
+        ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      update() {
+        this.opacity += this.speed;
+        if (this.opacity > 1 || this.opacity < 0) {
+          this.speed = -this.speed;
+        }
+      }
+    }
+
+    // Inicializar estrellas
+    function initStars() {
+      starsArray = [];
+      const numberOfStars = Math.floor((canvas.width * canvas.height) / 4000);
+      for (let i = 0; i < numberOfStars; i++) {
+        starsArray.push(new Star());
+      }
+    }
+
+    function animateStars() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      starsArray.forEach(star => {
+        star.update();
+        star.draw();
+      });
+      requestAnimationFrame(animateStars);
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+    animateStars();
+
+    // Saltar el intro
+    function skipIntro() {
+      const introScreen = document.getElementById('intro-screen');
+      introScreen.style.opacity = '0';
+      setTimeout(() => {
+        introScreen.style.display = 'none';
+      }, 400); // MODIFICADO: Desvanecimiento ultra rápido
+    }
+
+    // 3. CAMBIAR DE BANDO (JEDI VS SITH)
+    function setBando(bando) {
+      bandoSeleccionado = bando;
+      const detailsCard = document.getElementById('details-card');
+      const forceSelectorBox = document.getElementById('force-selector-box');
+      const bgGlow = document.getElementById('dynamic-bg-glow');
+      const rsvpBtn = document.getElementById('btn-rsvp');
+      const mainTitle = document.getElementById('invitation-title');
+
+      const dateIconBox = document.getElementById('date-icon-box');
+      const dateIcon = document.getElementById('date-icon');
+      const locIconBox = document.getElementById('loc-icon-box');
+      const locIcon = document.getElementById('loc-icon');
+
+      const btnJedi = document.getElementById('btn-jedi');
+      const btnSith = document.getElementById('btn-sith');
+
+      // Reproducir efecto sonoro del sable de luz
+      reproducirSonidoSable(bando);
+
+      // Remover clases anteriores
+      detailsCard.classList.remove('jedi-glow', 'sith-glow', 'normal-glow');
+      mainTitle.classList.remove('jedi-text-glow', 'sith-text-glow');
+      forceSelectorBox.classList.remove('jedi-glow', 'sith-glow', 'normal-glow');
+      
+      // Reiniciar opacidades de botones
+      btnJedi.style.opacity = '0.5';
+      btnSith.style.opacity = '0.5';
+
+      if (bando === 'jedi') {
+        btnJedi.style.opacity = '1';
+        btnJedi.classList.add('bg-blue-600', 'text-white');
+        btnSith.classList.remove('bg-red-600', 'text-white');
+
+        detailsCard.classList.add('jedi-glow');
+        forceSelectorBox.classList.add('jedi-glow');
+        mainTitle.classList.add('jedi-text-glow');
+        mainTitle.style.color = '#3b82f6'; // Azul Jedi
+
+        // Brillo interno
+        bgGlow.className = "absolute inset-0 pointer-events-none transition-all duration-700 jedi-bg";
+        
+        // Modificar botón RSVP con clase azul (manteniendo la estructura interna intacta)
+        rsvpBtn.className = "w-full py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white font-black uppercase tracking-[0.15em] rounded-xl shadow-[0_0_15px_rgba(59,130,246,0.5)] transition duration-300 transform hover:scale-[1.02] flex items-center justify-center gap-3";
+
+        // Cambiar iconos
+        dateIconBox.className = "p-3 bg-blue-950/40 rounded-xl border border-blue-800 flex-shrink-0";
+        dateIcon.className = "w-6 h-6 text-blue-400 transition-all duration-500";
+        locIconBox.className = "p-3 bg-blue-950/40 rounded-xl border border-blue-800 flex-shrink-0";
+        locIcon.className = "w-6 h-6 text-blue-400 transition-all duration-500";
+
+      } else if (bando === 'sith') {
+        btnSith.style.opacity = '1';
+        btnSith.classList.add('bg-red-600', 'text-white');
+        btnJedi.classList.remove('bg-blue-600', 'text-white');
+
+        detailsCard.classList.add('sith-glow');
+        forceSelectorBox.classList.add('sith-glow');
+        mainTitle.classList.add('sith-text-glow');
+        mainTitle.style.color = '#ef4444'; // Rojo Sith
+
+        // Brillo interno
+        bgGlow.className = "absolute inset-0 pointer-events-none transition-all duration-700 sith-bg";
+
+        // Modificar botón RSVP con clase roja (manteniendo la estructura interna intacta)
+        rsvpBtn.className = "w-full py-3 px-6 bg-red-600 hover:bg-red-700 text-white font-black uppercase tracking-[0.15em] rounded-xl shadow-[0_0_15px_rgba(239,68,68,0.5)] transition duration-300 transform hover:scale-[1.02] flex items-center justify-center gap-3";
+
+        // Cambiar iconos
+        dateIconBox.className = "p-3 bg-red-950/40 rounded-xl border border-red-800 flex-shrink-0";
+        dateIcon.className = "w-6 h-6 text-red-400 transition-all duration-500";
+        locIconBox.className = "p-3 bg-red-950/40 rounded-xl border border-red-800 flex-shrink-0";
+        locIcon.className = "w-6 h-6 text-red-400 transition-all duration-500";
+      }
+    }
+
+    // 4. CONTADOR REGRESIVO (COUNTDOWN)
+    const countdownInterval = setInterval(() => {
+      const now = new Date().getTime();
+      const distance = targetDate - now;
+
+      if (distance < 0) {
+        clearInterval(countdownInterval);
+        document.getElementById("countdown-days").innerText = "00";
+        document.getElementById("countdown-hours").innerText = "00";
+        document.getElementById("countdown-minutes").innerText = "00";
+        document.getElementById("countdown-seconds").innerText = "00";
+        return;
+      }
+
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      document.getElementById("countdown-days").innerText = String(days).padStart(2, '0');
+      document.getElementById("countdown-hours").innerText = String(hours).padStart(2, '0');
+      document.getElementById("countdown-minutes").innerText = String(minutes).padStart(2, '0');
+      document.getElementById("countdown-seconds").innerText = String(seconds).padStart(2, '0');
+    }, 1000);
+
+    // 5. GENERAR CONFIRMACIÓN DE WHATSAPP DIRECTA AL NÚMERO ESPECÍFICO
+    function enviarConfirmacion() {
+      let bandoTexto = "";
+      if (bandoSeleccionado === 'jedi') {
+        bandoTexto = " como un Caballero Jedi del Lado Luminoso ⚔️🔵";
+      } else if (bandoSeleccionado === 'sith') {
+        bandoTexto = " como un guerrero del Lado Oscuro de la Fuerza ⚔️🔴";
+      } else {
+        bandoTexto = " a celebrar este gran acontecimiento 🌌⭐";
+      }
+
+      const mensaje = `¡Hola Fernando! 🪐 Confirmo mi asistencia para celebrar tu cumpleaños 30 el próximo sábado 15 de agosto${bandoTexto}. ¡Que la Fuerza nos acompañe!`;
+      const encodedText = encodeURIComponent(mensaje);
+      
+      // Abre directamente el chat privado con Fernando usando wa.me y su número con lada internacional
+      window.open(`https://wa.me/525547790338?text=${encodedText}`, '_blank');
+    }
+  </script>
+</body>
+</html>
